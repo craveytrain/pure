@@ -108,7 +108,7 @@ prompt_pure_preprompt_render() {
 
 	# Set color for git branch/dirty status, change color if dirty checking has
 	# been delayed.
-	local git_color=242
+	local git_color=yellow
 	[[ -n ${prompt_pure_git_last_dirty_check_timestamp+x} ]] && git_color=red
 
 	# Initialize the preprompt array.
@@ -120,11 +120,11 @@ prompt_pure_preprompt_render() {
 	# Add git branch and dirty status info.
 	typeset -gA prompt_pure_vcs_info
 	if [[ -n $prompt_pure_vcs_info[branch] ]]; then
-		preprompt_parts+=("%F{$git_color}"'${prompt_pure_vcs_info[branch]}${prompt_pure_git_dirty}%f')
+		preprompt_parts+=("%F{$git_color}"' ${prompt_pure_vcs_info[branch]}%f %F{226}${prompt_pure_git_dirty}%f')
 	fi
 	# Git pull/push arrows.
 	if [[ -n $prompt_pure_git_arrows ]]; then
-		preprompt_parts+=('%F{cyan}${prompt_pure_git_arrows}%f')
+		preprompt_parts+=('%F{226}${prompt_pure_git_arrows}%f')
 	fi
 
 	# Username and machine, if applicable.
@@ -234,8 +234,9 @@ prompt_pure_async_vcs_info() {
 	# only export two msg variables from vcs_info
 	zstyle ':vcs_info:*' max-exports 2
 	# export branch (%b) and git toplevel (%R)
-	zstyle ':vcs_info:git*' formats '%b' '%R'
-	zstyle ':vcs_info:git*' actionformats '%b|%a' '%R'
+	zstyle ':vcs_info:git*' get-revision true
+	zstyle ':vcs_info:git*' formats '%b %F{239}@%f %7.7i' '%R'
+	zstyle ':vcs_info:git*' actionformats '%b %F{239}@%f %7.7i %F{red}(%a)%f' '%R'
 
 	vcs_info
 
@@ -255,7 +256,7 @@ prompt_pure_async_git_dirty() {
 	if [[ $untracked_dirty = 0 ]]; then
 		command git diff --no-ext-diff --quiet --exit-code
 	else
-		test -z "$(command git status --porcelain --ignore-submodules -unormal)"
+		test -z "$(command git status --porcelain -unormal)"
 	fi
 
 	return $?
@@ -589,7 +590,7 @@ prompt_pure_setup() {
 	PROMPT='%(12V.%F{242}%12v%f .)'
 
 	# prompt turns red if the previous command didn't exit with 0
-	PROMPT+='%(?.%F{magenta}.%F{red})${prompt_pure_state[prompt]}%f '
+	PROMPT+='%(?.%F{green}.%F{red})${prompt_pure_state[prompt]}%f '
 
 	# Store prompt expansion symbols for in-place expansion via (%). For
 	# some reason it does not work without storing them in a variable first.
